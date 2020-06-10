@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import {connect} from 'react-redux';
-import {bindActionCreators} from 'redux';
+import { connect } from "react-redux";
+import { bindActionCreators } from "redux";
 
 import {
   View,
@@ -13,19 +13,20 @@ import {
 import Constants from "expo-constants";
 import { FontAwesome } from "@expo/vector-icons";
 import { darken } from "polished";
-import Svg from "react-native-svg";
 import Logo from "../../assets/skateboard.png";
 
+import AppBar from "../../components/AppBar";
 
 import api from "../../Services/api";
 
 // actions
-import * as CartActions  from '../../store/modules/cart/actions';
+import * as CartActions from "../../store/modules/cart/actions";
 
 // import { Container } from './styles';
 
 const Home = (props) => {
   const [products, setProducts] = useState([]);
+  const { amount } = props;
 
   useEffect(() => {
     handleProducts();
@@ -33,25 +34,22 @@ const Home = (props) => {
 
   handleProducts = async () => {
     const response = await api.get("/products");
-    const data = response.data.map(item => ({
+    const data = response.data.map((item) => ({
       ...item,
-      priceFormmated: `${item.price} R$` 
-    }))
+      priceFormmated: `${item.price} R$`,
+    }));
     setProducts(data);
   };
 
   const addProductToCart = (product) => {
     const { addToCart } = props;
     addToCart(product);
-};
+  };
 
   return (
     <>
-      <View style={styles.appBar}>
-        <Image style={styles.logo} source={Logo} />
+      <AppBar text="Skate Shop" logo={Logo} />
 
-        <Text style={styles.AppTitle}>Skate Shop</Text>
-      </View>
       <View style={styles.container}>
         <FlatList
           data={products}
@@ -64,15 +62,19 @@ const Home = (props) => {
                 <Text style={styles.price}>{item.priceFormmated}</Text>
               </View>
 
-              <TouchableOpacity 
-                style={{ flex: 1 }} 
+              <TouchableOpacity
+                style={{ flex: 1 }}
                 activeOpacity={0.5}
-                onPress={() => {addProductToCart(item)}}
+                onPress={() => {
+                  addProductToCart(item);
+                }}
               >
                 <View style={styles.buttonContainer}>
                   <View style={styles.IconContainer}>
                     <FontAwesome name="cart-plus" size={24} color="black" />
-                    <Text style={{ paddingLeft: 5, fontSize: 20 }}>1</Text>
+                    <Text style={{ paddingLeft: 5, fontSize: 20 }}>
+                      {amount[item.id] || 0}
+                    </Text>
                   </View>
                   <Text style={styles.title}>Adicionar ao carrinho</Text>
                 </View>
@@ -88,19 +90,6 @@ const Home = (props) => {
 };
 
 const styles = StyleSheet.create({
-  AppTitle: {
-    fontSize: 20,
-    fontFamily: "Ubuntu_700Bold",
-  },
-  appBar: {
-    paddingTop: 10 + Constants.statusBarHeight,
-    width: "100%",
-    height: 60 + Constants.statusBarHeight,
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#2ecc71",
-  },
   container: {
     flex: 1,
     paddingTop: 10,
@@ -111,7 +100,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "#fff",
-    borderRadius:5,
+    borderRadius: 5,
 
     margin: 20,
   },
@@ -153,18 +142,16 @@ const styles = StyleSheet.create({
     marginRight: 40,
     borderRadius: 5,
   },
-  logo: {
-    paddingRight: 50,
-    height: 50,
-    width: 50,
-  },
 });
 
+const mapDispatchToprops = (dispatch) =>
+  bindActionCreators(CartActions, dispatch);
 
-const mapDispatchToprops =  (dispatch) => 
-  bindActionCreators(CartActions, dispatch)
+const MapStateToProps = (state) => ({
+  amount: state.cart.reduce((amount, product) => {
+    amount[product.id] = product.amount;
+    return amount;
+  }, {}),
+});
 
-
-
-
-export default connect(null, mapDispatchToprops)(Home);
+export default connect(MapStateToProps, mapDispatchToprops)(Home);

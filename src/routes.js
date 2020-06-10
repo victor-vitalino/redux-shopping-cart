@@ -1,10 +1,14 @@
 import React from "react";
+
+
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { AntDesign, Fontisto } from "@expo/vector-icons";
+import { Fontisto } from "@expo/vector-icons";
 
 import Home from "./Pages/Home";
 import Cart from "./Pages/Cart";
+
+import IconWithBadge from './components/Badge'
 
 const TabContainer = createBottomTabNavigator();
 
@@ -21,7 +25,7 @@ const routes = () => {
               );
             } else {
               return (
-                <AntDesign name="shoppingcart" size={24} color={IconColor} />
+                <IconWithBadge IconColor={IconColor}/>
               );
             }
           },
