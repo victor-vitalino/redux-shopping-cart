@@ -17,7 +17,7 @@ was used, which creates the endpoints based on the objects in the json file. <br
 **reactotron:** To debug app <br />
 
 ## See the result
-<div style="height=50%">
+<div styles="height=50%">
   ![Demo CountPages alpha](/skate-shop.gif)
 </div>
 
