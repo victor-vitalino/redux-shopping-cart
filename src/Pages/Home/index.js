@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { connect } from "react-redux";
-import { bindActionCreators } from "redux";
-
+import { useSelector, useDispatch } from "react-redux";
 import {
   View,
   Text,
@@ -26,7 +24,14 @@ import * as CartActions from "../../store/modules/cart/actions";
 
 const Home = (props) => {
   const [products, setProducts] = useState([]);
-  const { amount } = props;
+
+
+  const amount = useSelector((state) =>
+    state.cart.reduce((sumAmount, product) => {
+      sumAmount[product.id] = product.amount;
+      return sumAmount;
+    }, {})
+  );
 
   useEffect(() => {
     handleProducts();
@@ -42,8 +47,7 @@ const Home = (props) => {
   };
 
   const addProductToCart = (product) => {
-    const { addToCart } = props;
-    addToCart(product);
+    useDispatch(CartActions.addToCart(product));
   };
 
   return (
@@ -144,14 +148,5 @@ const styles = StyleSheet.create({
   },
 });
 
-const mapDispatchToprops = (dispatch) =>
-  bindActionCreators(CartActions, dispatch);
 
-const MapStateToProps = (state) => ({
-  amount: state.cart.reduce((amount, product) => {
-    amount[product.id] = product.amount;
-    return amount;
-  }, {}),
-});
-
-export default connect(MapStateToProps, mapDispatchToprops)(Home);
+export default Home;

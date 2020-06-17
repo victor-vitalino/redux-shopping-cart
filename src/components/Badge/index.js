@@ -1,12 +1,14 @@
 import React from "react";
-import { connect } from "react-redux";
+import { useSelector } from "react-redux";
 import { View, StyleSheet, Text} from "react-native";
 
 import { AntDesign } from "@expo/vector-icons";
 
 // import { Container } from './styles';
 
-const IconWithBadge = ({ cartSize, IconColor }) => {
+const IconWithBadge = ({ IconColor }) => {
+
+  const cartSize = useSelector(state => state.cart.length);
   return (
     <View style={{ width: 24, height: 24, margin: 5 }}>
       <AntDesign name="shoppingcart" size={24} color={IconColor} />
@@ -33,7 +35,5 @@ const styles = StyleSheet.create({
   },
 });
 
-const MapStateToProps = state => ({
-  cartSize: state.cart.length,
-})
-export default connect (MapStateToProps)(IconWithBadge);
+
+export default IconWithBadge;

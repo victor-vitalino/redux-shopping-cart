@@ -1,6 +1,5 @@
 import React from "react";
-import { connect } from "react-redux";
-import { bindActionCreators } from "redux";
+import { useSelector, useDispatch } from "react-redux";
 import * as CartActions from "../../store/modules/cart/actions";
 import {
   View,
@@ -20,12 +19,27 @@ import { darken } from "polished";
 
 import Buy from "../../assets/buy.png";
 
-const Cart = ({ cart, totalPrice, updateCart, removeFromCart }) => {
+const Cart = () => {
+  // dados redux - CART
+  const cart = useSelector((state) =>
+    state.cart.map((product) => ({
+      ...product,
+      subtotal: Number((product.price * product.amount).toFixed(2)),
+    }))
+  );
+
+  // dados redux - preço total
+  const totalPrice = useSelector((state) =>
+    state.cart.reduce((total, product) => {
+      return Number((total + product.price * product.amount).toFixed(2));
+    }, 0)
+  );
+
   const handlePlusCart = (product) => {
-    updateCart(product.id, product.amount + 1);
+    useDispatch(CartActions.updateCart(product.id, product.amount + 1));
   };
   const handleMinusCart = (product) => {
-    updateCart(product.id, product.amount - 1);
+    useDispatch(CartActions.updateCart(product.id, product.amount - 1));
   };
 
   return (
@@ -35,7 +49,9 @@ const Cart = ({ cart, totalPrice, updateCart, removeFromCart }) => {
         {totalPrice === 0 ? (
           <View style={styles.emptyCart}>
             <MaterialCommunityIcons name="cart-off" size={70} color="grey" />
-            <Text style={styles.emptyCartText}>Não existem produtos no carrinho</Text>
+            <Text style={styles.emptyCartText}>
+              Não existem produtos no carrinho
+            </Text>
           </View>
         ) : (
           <FlatList
@@ -48,7 +64,11 @@ const Cart = ({ cart, totalPrice, updateCart, removeFromCart }) => {
                     source={{ uri: item.image }}
                   />
                   <Text style={{ flex: 1 }}>{item.title}</Text>
-                  <TouchableOpacity onPress={() => removeFromCart(item.id)}>
+                  <TouchableOpacity
+                    onPress={() =>
+                      useDispatch(CartActions.removeFromCart(item.id))
+                    }
+                  >
                     <Entypo
                       name="trash"
                       size={35}
@@ -181,27 +201,14 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     flexDirection: "column",
     alignItems: "center",
-    justifyContent:'center',
-    height:'100%'
+    justifyContent: "center",
+    height: "100%",
   },
-  emptyCartText:{
-    fontSize:20,
-    fontFamily:'Roboto_500Medium',
-    color:'grey'
-  }
+  emptyCartText: {
+    fontSize: 20,
+    fontFamily: "Roboto_500Medium",
+    color: "grey",
+  },
 });
 
-const mapStateToProps = (state) => ({
-  cart: state.cart.map((product) => ({
-    ...product,
-    subtotal: Number((product.price * product.amount).toFixed(2)),
-  })),
-  totalPrice: state.cart.reduce((total, product) => {
-    return Number((total + product.price * product.amount).toFixed(2));
-  }, 0),
-});
-
-const MapDispatchToProps = (dispatch) =>
-  bindActionCreators(CartActions, dispatch);
-
-export default connect(mapStateToProps, MapDispatchToProps)(Cart);
+export default Cart;
